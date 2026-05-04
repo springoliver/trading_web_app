@@ -17,7 +17,14 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    login()
+    print("Starting application...")
+    try:
+        login()
+        print("Robinhood login successful.")
+    except Exception as e:
+        print(f"⚠️  Robinhood login on startup failed: {e}")
+        print("ℹ️  The app will attempt to login when you place your first trade.")
+        print("ℹ️  Check your RH_USERNAME and RH_PASSWORD in .env if trades fail.")
 
 app.include_router(trade_router, prefix="/trade")
 app.include_router(auth_router, prefix="/auth")

@@ -1,6 +1,19 @@
 import robin_stocks.robinhood as rh
+from app.services.auth_service import login
+
+def _ensure_login():
+    """Ensure Robinhood session is active; retry login if needed."""
+    try:
+        if not rh.get_auth_token():
+            login()
+    except:
+        try:
+            login()
+        except Exception as e:
+            raise Exception(f"Failed to establish Robinhood session: {str(e)}")
 
 def buy_option(option, quantity=1):
+    _ensure_login()
     price = _get_option_order_price(
         symbol=option['chain_symbol'],
         expiration_date=option['expiration_date'],
@@ -20,6 +33,7 @@ def buy_option(option, quantity=1):
     )
 
 def sell_option_open(option, quantity=1):
+    _ensure_login()
     price = _get_option_order_price(
         symbol=option['chain_symbol'],
         expiration_date=option['expiration_date'],
@@ -40,6 +54,7 @@ def sell_option_open(option, quantity=1):
 
 
 def close_option(symbol, option_type, expiration_date, strike, quantity=1, market_price=None, side="long"):
+    _ensure_login()
     price = float(market_price) if market_price else None
     if price is None:
         option_data = rh.get_option_market_data(symbol, expiration_date, strike, option_type)

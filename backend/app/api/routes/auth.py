@@ -9,7 +9,7 @@ router = APIRouter()
 class LoginRequest(BaseModel):
     username: str
     password: str
-    otp: str
+    otp: str  # App-level 2FA code (not Robinhood TOTP)
 
 
 class LoginResponse(BaseModel):

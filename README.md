@@ -23,11 +23,11 @@ pip install -r requirements.txt
 ```dotenv
 RH_USERNAME=your_robinhood_email
 RH_PASSWORD=your_robinhood_password
-RH_TOTP_SECRET=your_robinhood_totp_secret
+RH_DEVICE_TOKEN=optional_device_token
 SECRET_KEY=supersecret
 APP_USERNAME=admin
 APP_PASSWORD=admin
-APP_2FA_SECRET=your_app_2fa_secret
+APP_2FA_SECRET=123456
 ```
 
 3. Start the backend locally:
@@ -76,7 +76,8 @@ php -S 127.0.0.1:5173
 ## Notes
 
 - This app is intentionally local-only and uses an app-level Bearer token to protect routes.
-- The backend performs Robinhood login on startup using `.env` credentials and TOTP.
+- The backend performs Robinhood login on startup using `.env` credentials (username/password only).
+- Robinhood deprecated TOTP in favor of app/device-based authentication; no TOTP secret required.
 - If you want to change the frontend API endpoint, edit `frontend/src/services/api.js`.
 
 ## Important

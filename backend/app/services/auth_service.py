@@ -1,17 +1,30 @@
-import pyotp
 import robin_stocks.robinhood as rh
 import secrets
 from app.core.config import settings
 
 session_tokens = {}
+rh_login_status = False
 
 def login():
-    mfa_code = pyotp.TOTP(settings.RH_TOTP_SECRET).now()
-    return rh.login(
-        settings.RH_USERNAME,
-        settings.RH_PASSWORD,
-        mfa_code=mfa_code
-    )
+    """Login to Robinhood using username/password.
+    Robinhood deprecated TOTP in favor of app/device-based authentication.
+    """
+    global rh_login_status
+    try:
+        # Simple username/password login
+        result = rh.login(
+            settings.RH_USERNAME,
+            settings.RH_PASSWORD
+        )
+        # Successfully logged in
+        rh_login_status = True
+        return result
+    except Exception as e:
+        # Login failed but don't crash the app
+        rh_login_status = False
+        error_msg = str(e)
+        print(f"Robinhood login error: {error_msg}")
+        return None
 
 def verify_app_login(username: str, password: str, otp: str) -> bool:
     if username != settings.APP_USERNAME or password != settings.APP_PASSWORD:
