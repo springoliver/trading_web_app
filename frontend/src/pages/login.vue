@@ -4,7 +4,6 @@ import { useGenerateImageVariant } from '@core/composable/useGenerateImageVarian
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import {
-  emailValidator,
   requiredValidator,
 } from '@validators'
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
@@ -20,7 +19,7 @@ import api from '@/services/api'
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 const isPasswordVisible = ref(false)
-const email = ref('admin')
+const username = ref('admin')
 const password = ref('admin')
 const otp = ref('123456')
 const rememberMe = ref(false)
@@ -31,7 +30,7 @@ const handleSubmit = async () => {
   loginError.value = ''
   try {
     const response = await api.post('/auth/login', {
-      username: email.value,
+      username: username.value,
       password: password.value,
       otp: otp.value,
     })
@@ -98,28 +97,21 @@ onMounted(() => {
           </p>
         </VCardText>
         <VCardText>
-          <VAlert
-            color="primary"
-            variant="tonal"
-          >
-            <p class="text-caption mb-2">
-              Admin Email: <strong>admin@demo.com</strong> / Pass: <strong>admin</strong>
-            </p>
+          <VAlert color="primary" variant="tonal">
             <p class="text-caption mb-0">
-              Client Email: <strong>client@demo.com</strong> / Pass: <strong>client</strong>
+              Use your local app credentials from <code>backend/.env</code>.
             </p>
           </VAlert>
         </VCardText>
           <VCardText>
             <VForm @submit.prevent="handleSubmit">
             <VRow>
-              <!-- email -->
+              <!-- username -->
               <VCol cols="12">
                 <VTextField
-                  v-model="email"
-                  label="Email"
-                  type="email"
-                  :rules="[requiredValidator, emailValidator]"
+                  v-model="username"
+                  label="Username"
+                  :rules="[requiredValidator]"
                 />
               </VCol>
 

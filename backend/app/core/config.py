@@ -9,7 +9,8 @@ class Settings:
     RH_DEVICE_TOKEN = os.getenv("RH_DEVICE_TOKEN")  # Optional: Pre-registered device token
     APP_USERNAME = os.getenv("APP_USERNAME", "admin")
     APP_PASSWORD = os.getenv("APP_PASSWORD", "admin")
-    APP_2FA_SECRET = os.getenv("APP_2FA_SECRET", "123456")  # App-level 2FA code
+    APP_2FA_SECRET = os.getenv("APP_2FA_SECRET", "123456")  # TOTP seed or static fallback code
+    APP_TOKEN_TTL_SECONDS = int(os.getenv("APP_TOKEN_TTL_SECONDS", "28800"))
     SECRET_KEY = os.getenv("SECRET_KEY")
 
 settings = Settings()

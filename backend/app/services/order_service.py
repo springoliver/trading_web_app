@@ -1,18 +1,21 @@
 import robin_stocks.robinhood as rh
-from app.services.auth_service import login
+from app.services.auth_service import ensure_rh_session, get_last_login_error
+from app.services import paper_service
 
 def _ensure_login():
     """Ensure Robinhood session is active; retry login if needed."""
-    try:
-        if not rh.get_auth_token():
-            login()
-    except:
-        try:
-            login()
-        except Exception as e:
-            raise Exception(f"Failed to establish Robinhood session: {str(e)}")
+    if not ensure_rh_session():
+        error = get_last_login_error() or "Robinhood authentication unavailable"
+        raise Exception(f"Failed to establish Robinhood session: {error}")
 
 def buy_option(option, quantity=1):
+    if not ensure_rh_session():
+        return paper_service.open_position(
+            symbol=option["chain_symbol"],
+            option_type=option["type"],
+            quantity=quantity,
+            side="long",
+        )
     _ensure_login()
     price = _get_option_order_price(
         symbol=option['chain_symbol'],
@@ -33,6 +36,13 @@ def buy_option(option, quantity=1):
     )
 
 def sell_option_open(option, quantity=1):
+    if not ensure_rh_session():
+        return paper_service.open_position(
+            symbol=option["chain_symbol"],
+            option_type=option["type"],
+            quantity=quantity,
+            side="short",
+        )
     _ensure_login()
     price = _get_option_order_price(
         symbol=option['chain_symbol'],
@@ -54,6 +64,15 @@ def sell_option_open(option, quantity=1):
 
 
 def close_option(symbol, option_type, expiration_date, strike, quantity=1, market_price=None, side="long"):
+    if not ensure_rh_session():
+        return paper_service.close_position(
+            symbol=symbol,
+            option_type=option_type,
+            expiration_date=expiration_date,
+            strike=strike,
+            quantity=quantity,
+            side=side,
+        )
     _ensure_login()
     price = float(market_price) if market_price else None
     if price is None:

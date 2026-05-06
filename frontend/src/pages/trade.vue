@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/services/api'
+import api, { getAccessToken } from '@/services/api'
 
 const router = useRouter()
 const symbol = ref('AAPL')
@@ -12,27 +12,43 @@ const optionInfo = ref({})
 const status = ref('Connecting price feed...')
 const positions = ref([])
 const error = ref('')
+const speedResult = ref(null)
 let ws = null
+let positionsTimer = null
 
 const connectPriceFeed = () => {
+  const token = getAccessToken()
+  if (!token) {
+    logout()
+    return
+  }
   if (ws) {
     ws.close()
   }
   status.value = 'Connecting price feed...'
-  ws = new WebSocket(`ws://127.0.0.1:8000/ws/${symbol.value}`)
+  const wsBase = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/^http/, 'ws')
+  const wsUrl = `${wsBase}/ws/${symbol.value}?option_type=${optionType.value}&token=${encodeURIComponent(token)}`
+  ws = new WebSocket(wsUrl)
   ws.onopen = () => {
     status.value = 'Live price feed connected'
   }
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data)
-    if (data.price) {
-      underlyingPrice.value = parseFloat(data.price)
+    if (data.underlying_price) {
+      underlyingPrice.value = parseFloat(data.underlying_price)
+    }
+    if (data.option) {
+      optionInfo.value = data.option
     }
   }
   ws.onerror = () => {
     status.value = 'Price feed error. Check backend connection.'
   }
-  ws.onclose = () => {
+  ws.onclose = (event) => {
+    if (event?.code === 1008) {
+      logout()
+      return
+    }
     status.value = 'Price feed disconnected'
   }
 }
@@ -108,16 +124,31 @@ const logout = () => {
 watch([symbol, optionType], () => {
   loadOption()
   connectPriceFeed()
+  runSpeedTest()
 })
+
+const runSpeedTest = async () => {
+  try {
+    const response = await api.get('/trade/speed-test', {
+      params: { symbol: symbol.value, option_type: optionType.value },
+    })
+    speedResult.value = response.data
+  } catch {
+    speedResult.value = null
+  }
+}
 
 onMounted(() => {
   loadOption()
   loadPositions()
   connectPriceFeed()
+  runSpeedTest()
+  positionsTimer = window.setInterval(loadPositions, 1000)
 })
 
 onBeforeUnmount(() => {
   if (ws) ws.close()
+  if (positionsTimer) window.clearInterval(positionsTimer)
 })
 </script>
 
@@ -179,12 +210,24 @@ onBeforeUnmount(() => {
 
             <VRow class="mt-4">
               <VCol cols="12" md="6">
-                <VBtn color="success" class="me-4" @click="tradeOption('buy')">Buy {{ optionType.toUpperCase() }}</VBtn>
-                <VBtn color="error" class="me-4" @click="tradeOption('sell')">Sell {{ optionType.toUpperCase() }}</VBtn>
+                <VBtn color="success" class="me-4" @click="tradeOption('buy')">BUY</VBtn>
+                <VBtn color="error" class="me-4" @click="tradeOption('sell')">SELL</VBtn>
               </VCol>
               <VCol cols="12" md="6" class="d-flex align-center justify-end">
                 <span class="text-caption me-2">Status:</span>
                 <strong>{{ status }}</strong>
+              </VCol>
+            </VRow>
+            <VRow class="mt-2">
+              <VCol cols="12">
+                <div class="text-caption">Speed Test (backend quote latency)</div>
+                <div v-if="speedResult">
+                  <strong>{{ speedResult.server_latency_ms }}ms</strong>
+                  <span class="ms-2" :class="speedResult.pass ? 'text-success' : 'text-error'">
+                    {{ speedResult.pass ? 'PASS (<250ms)' : 'ABOVE TARGET' }}
+                  </span>
+                </div>
+                <div v-else>Unavailable</div>
               </VCol>
             </VRow>
 

@@ -1,86 +1,106 @@
 # RH Trader
 
-A local Vuexy-based frontend with a FastAPI backend for private Robinhood option trading.
+Local-first Robinhood options trader with:
+- Fast Vue 3 frontend (`frontend/`)
+- FastAPI backend (`backend/`)
+- Private login + 2FA gate
+- 1 DTE nearest-strike buy/sell
+- Live underlying + option mark feed (<250ms target)
+- One-click close (`❌`) for open option positions
 
-## Project structure
+## Requirement coverage
 
-- `frontend/` - Vue 3 + Vuetify (Vuexy) interface
-- `backend/` - FastAPI backend handling app login, Robinhood authentication, live price feed, option lookup, buy, sell, and close orders
+- Private access: app login + 2FA + bearer-token protected APIs + authenticated WebSocket.
+- Speed: backend sends quote updates every 200ms and exposes a speed test endpoint.
+- Trading flow: buy/sell opens nearest strike for the selected `call` or `put`, and close removes positions once order is sent.
+- No chart dependency: UI focuses on trading ticket + live panel.
 
 ## Setup
 
-### Backend
-
-1. Install Python dependencies:
+### 1) Backend install
 
 ```powershell
-cd c:\Users\...\rh-trader\backend
+cd C:\Users\Administrator\Videos\trading\rh-trader\backend
 pip install -r requirements.txt
 ```
 
-2. Fill in `backend/.env` with your Robinhood credentials and app auth secrets:
+### 2) Create `.env`
 
-```dotenv
-RH_USERNAME=your_robinhood_email
-RH_PASSWORD=your_robinhood_password
-RH_DEVICE_TOKEN=optional_device_token
-SECRET_KEY=supersecret
-APP_USERNAME=admin
-APP_PASSWORD=admin
-APP_2FA_SECRET=123456
-```
-
-3. Start the backend locally:
+Copy template:
 
 ```powershell
-cd c:\Users\...\rh-trader\backend
+cd C:\Users\Administrator\Videos\trading\rh-trader\backend
+copy .env.example .env
+```
+
+Then edit `backend/.env`.
+
+## How to get each `.env` value
+
+```dotenv
+RH_USERNAME=
+RH_PASSWORD=
+RH_DEVICE_TOKEN=
+SECRET_KEY=
+APP_USERNAME=
+APP_PASSWORD=
+APP_2FA_SECRET=
+APP_TOKEN_TTL_SECONDS=28800
+```
+
+- `RH_USERNAME`: Robinhood account login email.
+- `RH_PASSWORD`: Robinhood account password.
+- `RH_DEVICE_TOKEN`: optional; keep blank unless Robinhood requires a known device token.
+- `SECRET_KEY`: long random application secret (generate via Python: `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
+- `APP_USERNAME`: username for this local app login (not Robinhood username).
+- `APP_PASSWORD`: strong password for local app login.
+- `APP_2FA_SECRET`: **Base32 TOTP seed** used by authenticator apps (Google Authenticator/Authy/1Password).  
+  - Generate one: `python -c "import pyotp; print(pyotp.random_base32())"`
+  - Add it to authenticator app manually.
+  - Use the rotating 6-digit code from that app on login.
+  - If you set a short numeric value (example `123456`), backend treats it as static fallback code (not recommended).
+- `APP_TOKEN_TTL_SECONDS`: session lifetime in seconds (default 8 hours).
+
+## 3) Run backend
+
+```powershell
+cd C:\Users\Administrator\Videos\trading\rh-trader\backend
 python run.py
 ```
 
-The backend listens on `http://127.0.0.1:8000`.
+Backend URL: `http://127.0.0.1:8000`
 
-### Frontend
- ## develop mode
-1. Install dependencies:
+## 4) Run frontend
 
 ```powershell
-frontend path (example: cd c:\Users\...\rh-trader\frontend)
+cd C:\Users\Administrator\Videos\trading\rh-trader\frontend
 npm install
-```
-
-2. Start the frontend dev server:
-
-```powershell
 npm run dev
 ```
 
-3. Open the local URL shown in the terminal, typically `http://localhost:5173`.
-
-## production mode
-1. Start the frontend pro server:
-```powershell
-frontend path (example: cd c:\Users\...\rh-trader\frontend\dist)
-php -S 127.0.0.1:5173
-```
-
-2. Open the local URL shown in the terminal, typically `http://localhost:5173`.
+Open the local URL shown by Vite (usually `http://127.0.0.1:5173` or `http://localhost:5173`).
 
 ## Usage
 
-- Login with your app credentials and 2FA code.
-- The trading page uses a WebSocket price feed from the backend.
-- `Buy` and `Sell` submit orders for the nearest 1 DTE strike in the selected option type.
-- `❌ Close` exits both long and short positions.
-- Open positions are listed with a close button.
+1. Login with `APP_USERNAME` / `APP_PASSWORD` / current 2FA code.
+2. Choose symbol (`SPY`, `AAPL`, etc), option type (`call` / `put`), quantity.
+3. Click `BUY` or `SELL` for nearest strike 1 DTE contract.
+4. Use `❌ Close` beside a position to close immediately.
+5. Watch:
+   - Underlying price (live)
+   - Option mark (live)
+   - Open position P/L (refreshes continuously)
+   - Speed test result (`/trade/speed-test`, target <250ms)
 
-## Notes
+## Paper/safe testing recommendation
 
-- This app is intentionally local-only and uses an app-level Bearer token to protect routes.
-- The backend performs Robinhood login on startup using `.env` credentials (username/password only).
-- Robinhood deprecated TOTP in favor of app/device-based authentication; no TOTP secret required.
-- If you want to change the frontend API endpoint, edit `frontend/src/services/api.js`.
+Robinhood does not offer true options paper trading through official APIs. For safer testing:
+- Start with the smallest possible contract quantity.
+- Use symbols with tight spreads/liquidity.
+- Test in market hours with stable connectivity.
+- Validate order payloads and pricing logic before increasing size.
 
-## Important
+## Security notes
 
-- Keep your `.env` file private.
-- Do not expose this app to the public internet without additional security.
+- Keep `.env` local and private; never commit credentials.
+- Run only on localhost/private network unless you add TLS, firewall rules, and stronger auth controls.

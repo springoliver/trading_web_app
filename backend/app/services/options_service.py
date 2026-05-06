@@ -1,8 +1,17 @@
 import robin_stocks.robinhood as rh
 from datetime import datetime, timedelta
+from app.services.auth_service import ensure_rh_session
+from app.services import paper_service
+
+
+def _ensure_login():
+    """Ensure Robinhood session exists for market/position reads."""
+    return ensure_rh_session()
 
 
 def get_next_expiration(symbol):
+    if not _ensure_login():
+        return (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
     dates = rh.get_chains(symbol)['expiration_dates']
     tomorrow = (datetime.now() + timedelta(days=1))
     return min(dates, key=lambda d: abs(
@@ -11,6 +20,14 @@ def get_next_expiration(symbol):
 
 
 def get_closest_option(symbol, option_type):
+    if not _ensure_login():
+        paper = paper_service.get_option_payload(symbol, option_type)
+        return {
+            "chain_symbol": paper["symbol"],
+            "strike_price": paper["option"]["strike_price"],
+            "expiration_date": paper["option"]["expiration_date"],
+            "type": option_type,
+        }
     price = float(rh.stocks.get_latest_price(symbol)[0])
     expiration = get_next_expiration(symbol)
     options = rh.find_options_by_expiration(
@@ -24,6 +41,8 @@ def get_closest_option(symbol, option_type):
 
 
 def get_option_payload(symbol, option_type):
+    if not _ensure_login():
+        return paper_service.get_option_payload(symbol, option_type)
     price = float(rh.stocks.get_latest_price(symbol)[0])
     expiration = get_next_expiration(symbol)
     option = get_closest_option(symbol, option_type)
@@ -44,6 +63,8 @@ def get_option_payload(symbol, option_type):
 
 
 def list_open_positions():
+    if not _ensure_login():
+        return paper_service.list_positions()
     raw_positions = rh.get_open_option_positions()
     positions = []
     for position in raw_positions or []:
