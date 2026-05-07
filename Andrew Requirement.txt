@@ -1,0 +1,102 @@
+9:46 AM 4/25/2026
+=============================
+## Project Description. ###
+=============================
+Title: Real-Time Options Trading Frontend
+I need a browser-based interface that mirrors TradingView’s on-chart buy/sell ticket, but for one-day-to-expiry option contracts traded through my Robinhood account. The entire front end must be written in JavaScript; I am open to plain JS with HTML/CSS or any lightweight framework you find suitable, as long as load time stays snappy and the code remains readable.
+
+Core workflow
+• The chart streams the underlying’s price in real time. Alongside it, a live panel shows the option’s mark, updating tick-by-tick so gains and drawdowns are obvious at a glance.
+• A single click on Buy or Sell instantly purchases or shorts the option strike closest to the current underlying price (always 1 DTE). After entry, an ❌ beside the position lets me close it just as quickly.
+• Behind the scenes, every ticket action calls the Robinhood API to create or close the trade. I will supply my credentials and any necessary tokens; you handle authentication, order submission and error handling.
+
+Acceptance criteria
+1. Web page loads in any modern desktop browser with no additional install.
+2. Price feed and P/L values update in near-real time (<250 ms perceived delay).
+3. Buy/Sell executes the correct 1 DTE strike and immediately reflects the opened position.
+4. Clicking ❌ sends the close order, removes the position from the list and freezes further updates for that trade.
+5. Clean, well-commented JavaScript source plus a short README explaining setup, API keys and how to switch to paper trading if needed.
+6. Must be very fast and provide speed test.
+7. Must be private access. this should not be open to the web. Will require a log in or something to access it. must have 2 factor authentication.
+8. I do not need charting either.
+
+If this sounds clear, let me know any external libraries you’d like to pull in for the charting or WebSocket feed so I can approve them before you start.
+
+####################################################
+Chatting History
+
+Client: can an options trading option be integrated directly into trading view?
+	i don't think it can.
+Me: Yeah, I don't think it is possible
+	just we can refer that info, not we cannot insert somedata on there.
+Client: yeah
+	so i have all my charts on tradingview. I literally just need something to help me execute trades faster than the robinhood interface.
+Me: Can you show me your current trading view charts?
+Client: yes. a screen shot or something? I mean it just has all my indicators
+Me: … want to show its data to somewhere?
+Client: no. eventually i might build a bot. But for the purpose of this project i just want a manual way to execute trades quicker.
+Me: no? -Then, do you want to change some trading view inner data or its database?
+Client: No, i do not.
+Me: Hmm.. I see
+Client:	unless my trade can be opened and closed on tradingview then no
+	literally just a gui interface where i can click on PUT or CAll and change the number of contracts. Then feed the option price real time so i can see 	if it's increasing or decreasing and a way to close the position with an X'
+Me: Okay, I am getting make sense
+	Is not there that's like functionality?
+Client:	similar to this. 
+	* Image.png (shared the screenshot)
+Me: *tradingview platform
+Client: not for options about "Is not there that's like functionality?"
+	Need to also have it private with 2 factor log in.
+Me: Okay, I see
+	I will use vue3 which is modern javascript framework to draw/show its info.
+	and backend will be used with laravel?
+Client: ok sounds good.
+	Need to also have it private with 2 factor log in.
+	whatever you think is fast. I know you'll have to use python for the API call about "and backend will be used with laravel?"
+Me: Hmm.. so i need to use developer account and should be able to grasp the apis from tradingview.
+Client: no. you won't use tradingview APIs. You'll go to Robinhood.
+Me: Yeah, if need, i will use Flask about "whatever you think is fast. I know you'll have to use python for the API call"
+Client: https://encrypted-vtbn2.gstatic.com/video?q=tbn:ANd9GcQPVQgDX3BElYTeAbhoFVyUY79DQv-5o8VqyrJYCVQt4REyo9o9
+	https://www.youtube.com/watch?v=IJV0nFJhEko
+	https://algotrading101.com/learn/robinhood-api-guide/
+Me: oh.. just i've checked it, they won't support to use inner API about "no. you won't use tradingview APIs. You'll go to Robinhood"
+Client:	You have to use python.
+Me: Okay, i see. If we use Python, then it is providing the Python library.
+Client:	i'll let you figure out the best way to do it. But probably python to read the price movement in real time.
+Me: Okay, thanks, but don't worry about my python skills.
+Client:	so front end gui with login, 2 factor auth. Python or some script reading the Robinhood API.
+Me: Yes, exactly. I am quoting 1k USD for 7 days to complete it. Is it working for you?
+Client:	ok and it will take some time to test it, and probably get the keys from Robinhood. Yes send me a gui design. Can be really basic.
+Me: Okay, one sec.
+Client:	can it be an app running directly on my computer? not a public domain.
+Me: then, you need to install the python on your PC
+	ttps://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-4/login?to=/dashboards/ecommerce
+	i am sending you the Vuexy3.0 theme
+	i will use this them as GUI
+Client: ok
+Me: I have Vuexy 3.0 theme
+Client: perfect
+Me: Thank you, @Andrew
+	While doing so many FE works, I've purchased Vuexy3.0 theme with $59
+Client: easiy customizeable?
+Me: So, i can use Vuexy3.0 for you seamlessly
+	Yeah, ofc
+	please share with me the credentials and i will get start the work.
+Client: so we probably need to talk through architecture. I don't know what credentials you need.
+	can you tell me what you need for the API?
+Me: Yeah, Tradingview login details.
+Client: but you aren't doing anything with Tradingview
+	you are going direct to Robinhood
+Me: Okay, no problem
+Client:	Those are the links i sent you up top.
+Me: Okay, got it. Let me check it them and will get start the work.
+Client:	ok. you will need some type of API key. After you review, tell me everythign you need and I will get it.
+	https://docs.robinhood.com/crypto/trading/#section/Authentication/Creating-a-key-pair
+Me: Okay, thank you. I will check it after eating.
+	Here is earl;y morning
+Client: ok
+	I'm a little worried about sharing my private Key
+Me: then, let's see it later if it is mandatory or not for test.
+Client:	you'll have to create one for testing. then i can replace it with my private it later.
+	I can install python on my desktop. I don't mind.
+	...
