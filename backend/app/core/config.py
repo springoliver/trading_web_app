@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
-    RH_USERNAME = os.getenv("RH_USERNAME")
-    RH_PASSWORD = os.getenv("RH_PASSWORD")
-    RH_DEVICE_TOKEN = os.getenv("RH_DEVICE_TOKEN")  # Optional: Pre-registered device token
+    BROKER = os.getenv("BROKER", "tastytrade")
+    TASTY_USERNAME = os.getenv("TASTY_USERNAME")
+    TASTY_PASSWORD = os.getenv("TASTY_PASSWORD")
+    TASTY_ACCOUNT_NUMBER = os.getenv("TASTY_ACCOUNT_NUMBER")
+    TASTY_SANDBOX = os.getenv("TASTY_SANDBOX", "true").lower() == "true"
+    TASTY_API_BASE = os.getenv(
+        "TASTY_API_BASE",
+        "https://api.cert.tastyworks.com" if TASTY_SANDBOX else "https://api.tastyworks.com",
+    )
     APP_USERNAME = os.getenv("APP_USERNAME", "admin")
     APP_PASSWORD = os.getenv("APP_PASSWORD", "admin")
     APP_2FA_SECRET = os.getenv("APP_2FA_SECRET", "123456")  # TOTP seed or static fallback code

@@ -93,7 +93,7 @@ onMounted(() => {
             Welcome to {{ themeConfig.app.title }}! 👋🏻
           </h5>
           <p class="mb-0">
-            Secure local access with 2FA and Robinhood order connectivity.
+            Secure local access with 2FA and Tastytrade connectivity.
           </p>
         </VCardText>
         <VCardText>

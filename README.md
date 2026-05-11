@@ -1,6 +1,6 @@
 # RH Trader
 
-Local-first Robinhood options trader with:
+Local-first Tastytrade options trader with:
 - Fast Vue 3 frontend (`frontend/`)
 - FastAPI backend (`backend/`)
 - Private login + 2FA gate
@@ -38,9 +38,12 @@ Then edit `backend/.env`.
 ## How to get each `.env` value
 
 ```dotenv
-RH_USERNAME=
-RH_PASSWORD=
-RH_DEVICE_TOKEN=
+BROKER=tastytrade
+TASTY_USERNAME=
+TASTY_PASSWORD=
+TASTY_ACCOUNT_NUMBER=
+TASTY_SANDBOX=true
+TASTY_API_BASE=https://api.cert.tastyworks.com
 SECRET_KEY=
 APP_USERNAME=
 APP_PASSWORD=
@@ -48,11 +51,14 @@ APP_2FA_SECRET=
 APP_TOKEN_TTL_SECONDS=28800
 ```
 
-- `RH_USERNAME`: Robinhood account login email.
-- `RH_PASSWORD`: Robinhood account password.
-- `RH_DEVICE_TOKEN`: optional; keep blank unless Robinhood requires a known device token.
+- `BROKER`: keep `tastytrade`.
+- `TASTY_USERNAME`: Tastytrade login username/email.
+- `TASTY_PASSWORD`: Tastytrade login password.
+- `TASTY_ACCOUNT_NUMBER`: account number used for order routing.
+- `TASTY_SANDBOX`: `true` for cert/sandbox environment, `false` for live.
+- `TASTY_API_BASE`: base URL for Tastytrade API (`https://api.cert.tastyworks.com` for sandbox, `https://api.tastyworks.com` for live).
 - `SECRET_KEY`: long random application secret (generate via Python: `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
-- `APP_USERNAME`: username for this local app login (not Robinhood username).
+- `APP_USERNAME`: username for this local app login (not broker username).
 - `APP_PASSWORD`: strong password for local app login.
 - `APP_2FA_SECRET`: **Base32 TOTP seed** used by authenticator apps (Google Authenticator/Authy/1Password).  
   - Generate one: `python -c "import pyotp; print(pyotp.random_base32())"`
@@ -92,13 +98,19 @@ Open the local URL shown by Vite (usually `http://127.0.0.1:5173` or `http://loc
    - Open position P/L (refreshes continuously)
    - Speed test result (`/trade/speed-test`, target <250ms)
 
-## Paper/safe testing recommendation
+## Current migration status (Robinhood -> Tastytrade)
 
-Robinhood does not offer true options paper trading through official APIs. For safer testing:
-- Start with the smallest possible contract quantity.
-- Use symbols with tight spreads/liquidity.
-- Test in market hours with stable connectivity.
-- Validate order payloads and pricing logic before increasing size.
+- Completed:
+  - Removed Robinhood dependency from backend runtime.
+  - Added Tastytrade credentials/session configuration.
+  - Kept trading UI/flows stable with built-in paper fallback.
+- In progress:
+  - Full Tastytrade live options contract discovery and order routing.
+  - Full account position sync from Tastytrade.
+- Practical result today:
+  - The app is demo-safe and private.
+  - It runs without Robinhood failures.
+  - You can continue validation using paper mode while live Tastytrade order wiring is finalized.
 
 ## Security notes
 

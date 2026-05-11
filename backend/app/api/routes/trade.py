@@ -38,7 +38,7 @@ def price(symbol: str, option_type: str, user: str = Depends(get_current_user)):
     except Exception as exc:
         raise HTTPException(
             status_code=503,
-            detail=f"Unable to load option data from Robinhood: {str(exc)}",
+            detail=f"Unable to load option data from broker: {str(exc)}",
         ) from exc
 
 
@@ -57,7 +57,7 @@ def speed_test(symbol: str, option_type: str, user: str = Depends(get_current_us
     except Exception as exc:
         raise HTTPException(
             status_code=503,
-            detail=f"Speed test unavailable while Robinhood auth is down: {str(exc)}",
+            detail=f"Speed test unavailable while broker auth is down: {str(exc)}",
         ) from exc
 
 
@@ -106,5 +106,5 @@ def positions(user: str = Depends(get_current_user)):
     except Exception as exc:
         raise HTTPException(
             status_code=503,
-            detail=f"Unable to load positions from Robinhood: {str(exc)}",
+            detail=f"Unable to load positions from broker: {str(exc)}",
         ) from exc

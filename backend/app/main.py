@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.auth import router as auth_router
 from app.api.routes.trade import router as trade_router
 from app.websocket.price_ws import price_stream
-from app.services.auth_service import ensure_rh_session, validate_session_token
+from app.services.auth_service import ensure_broker_session, validate_session_token
 
 app = FastAPI()
 
@@ -19,14 +19,14 @@ app.add_middleware(
 def startup():
     print("Starting application...")
     try:
-        if ensure_rh_session():
-            print("Robinhood login successful.")
+        if ensure_broker_session():
+            print("Tastytrade session established.")
         else:
-            print("⚠️  Robinhood login on startup failed.")
-        print("ℹ️  The app will attempt to login when you place your first trade.")
-        print("ℹ️  Check your RH_USERNAME and RH_PASSWORD in .env if trades fail.")
+            print("⚠️  Tastytrade session unavailable at startup.")
+        print("ℹ️  Paper mode stays available for demo/testing.")
+        print("ℹ️  Check TASTY_USERNAME and TASTY_PASSWORD in .env if live mode fails.")
     except Exception as e:
-        print(f"⚠️  Robinhood login on startup failed: {e}")
+        print(f"⚠️  Broker startup session failed: {e}")
 
 app.include_router(trade_router, prefix="/trade")
 app.include_router(auth_router, prefix="/auth")

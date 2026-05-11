@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-robin-stocks
 pyotp
 python-dotenv
 httpx
